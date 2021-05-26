@@ -7,9 +7,9 @@ import NotificationAlert from 'react-notification-alert';
 import { StoreProvider } from './Store';
 import LeaveManagementInit from './LeaveManagementInit';
 import history from './history';
+import AdminLayout from './layouts/Admin';
 
 
-// eslint-disable-next-line react/prop-types
 export default function LeaveManagementApp({ data }) {
   const notificationAlertRef = React.useRef(null);
 
@@ -21,12 +21,11 @@ export default function LeaveManagementApp({ data }) {
       <StoreProvider>
         <Router history={history}>
           <Switch>
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-            <Route path="/" render={(props) => <LeaveManagementInit userData={data} notificationAlertRef={notificationAlertRef}></LeaveManagementInit>} />
-            {/* <Redirect from="/" to="/admin/dashboard" /> */}
+            <Route path="/admin" render={(props) => <LeaveManagementInit userData={data} notificationAlertRef={notificationAlertRef}><AdminLayout /></LeaveManagementInit>} />
+            <Redirect from="/" to="/admin/dashboard" />
           </Switch>
         </Router>
       </StoreProvider>
     </>
   );
-}
+};
