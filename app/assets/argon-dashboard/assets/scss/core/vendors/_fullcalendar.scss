@@ -204,16 +204,16 @@
 
     table {
         background: transparent;
-        tr {
-            & > td {
-                &:first-child {
-                    border-left-width: 0;
-                }
-                &:last-child {
-                    border-right-width: 0;
-                }
-            }
-        }
+        // tr {
+        //     & > td {
+        //         &:first-child {
+        //             border-left-width: 1;
+        //         }
+        //         &:last-child {
+        //             border-right-width: 1;
+        //         }
+        //     }
+        // }
     }
 }
 

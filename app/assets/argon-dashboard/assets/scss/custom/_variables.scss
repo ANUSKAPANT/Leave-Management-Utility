@@ -84,11 +84,13 @@ $primary:       #5e72e4 !default;
 $secondary:     #f7fafc !default;
 $success:       $green !default;
 $info:          $teal !default;
+$info-states:   $teal !default;
 $warning:       $orange !default;
 $danger:        $red !default;
 $light:         $gray-500 !default;
 $dark:          $gray-900 !default;
 $darker:        darken($gray-900, 15%) !default;
+$transparent-bg: transparent !default;
 
 $facebook:      #3b5999 !default;
 $twitter:       #1da1f2 !default;
@@ -314,6 +316,7 @@ $border-radius-sm:            .25rem !default;
 $box-shadow-sm:               0 0 .5rem rgba($gray-600, .075) !default;
 $box-shadow:                  0 0 2rem 0 rgba($gray-600, .15) !default;
 $box-shadow-lg:               0 0 3rem rgba($gray-600, .175) !default;
+$border-thick:                2px !default;
 
 
 
@@ -372,6 +375,7 @@ $font-weight-extra-bold:      700 !default;
 $font-weight-base:            $font-weight-normal !default;
 $line-height-base:            1.5 !default;
 $shape-height-base:           1.5 !default;
+$line-height:                 1.35em !default;
 
 $h1-font-size:                $font-size-base * 1.625 !default;
 $h2-font-size:                $font-size-base * 1.25 !default;
@@ -511,6 +515,9 @@ $input-btn-border-width:      1px !default;
 $input-btn-font-size-sm:      .75rem !default;
 $input-btn-font-size:         .875rem !default;
 $input-btn-font-size-lg:         .875rem !default;
+
+$padding-btn-vertical:         11px !default;
+$padding-btn-horizontal:        40px !default;
 
 
 
