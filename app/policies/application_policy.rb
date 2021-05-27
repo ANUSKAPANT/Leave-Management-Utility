@@ -44,22 +44,6 @@ class ApplicationPolicy
     end
   end
 
-  def self.permit_access_to_user_and_above(*actions)
-    actions.each do |action|
-      define_method("#{action}?") do
-        user_and_above?
-      end
-    end
-  end
-
-  def self.permit_conditional_access(actions, options)
-    actions.each do |action|
-      define_method("#{action}?") do
-        public_send(options[:if])
-      end
-    end
-  end
-
   def user_and_above?
     user.user? || user.admin?
   end
