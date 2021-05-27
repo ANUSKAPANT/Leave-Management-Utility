@@ -63,14 +63,14 @@ export default function AdminNavbar(props) {
                       src={avatar}
                     />
                   </span>
-                  <Media className="ml-2 d-none d-lg-block">
+                  <Media className="ml-2 d-none d-block">
                     <span className="mb-0 text-sm font-weight-bold">
                       {fullName}
                     </span>
                   </Media>
                 </Media>
               </DropdownToggle>
-              <DropdownMenu className="dropdown-menu-arrow mt-5">
+              <DropdownMenu className="dropdown-menu-arrow right">
                 <DropdownItem onClick={() => handleLogout()}>
                   <i className="ni ni-user-run" />
                   <span>Logout</span>

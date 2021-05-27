@@ -80,12 +80,12 @@
         0% {
             opacity: 0;
             // transform: translate(0, 10px) perspective(200px) rotateX(-2deg);
-            transform: translate(0, 10px) perspective(200px);
+            transform: translate(0, 10) perspective(200px);
             transition: visibility 0.25s, opacity 0.25s, transform 0.25s;
         }
 
         100% {
-            transform: translate(0, 0);
+            transform: translate(0, 10);
             opacity: 1;
         }
     }
@@ -97,7 +97,7 @@
 
         to {
             opacity: 0;
-            transform: translate(0, 10px)
+            transform: translate(0, 10px);
             // transform: translate(0, 10px) perspective(0) rotateX(0);
         }
     }

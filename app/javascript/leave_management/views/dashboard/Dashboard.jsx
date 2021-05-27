@@ -11,6 +11,12 @@ import apiCall from '../../helpers/apiCall';
 
 export default function Dashboard(props) {
   const [events, setEvents] = useState([]);
+  const statusColorMap = {
+    pending: "bg-info",
+    approved: "bg-success",
+    rejected: "bg-warning",
+  };
+  const isAdmin = () => props.userData.role === "admin";
 
   useEffect(() => {
     apiCall.fetchEntities('/leave_requests.json')
@@ -20,25 +26,28 @@ export default function Dashboard(props) {
         setEvents(eventData);
       });
   }, []);
-  
-  const columns = [
-    {
-      Header: "First Name",
-      accessor: "firstName"
-    },
-    {
-      Header: "Last Name",
-      accessor: "lastName"
-    },
-    {
-      Header: "Age",
-      accessor: "age"
-    },
-  ];
+
+  const handleActions = (status, id) => {
+    const postData = {
+      status,
+    };
+    apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
+      .then((res) => {
+        const dataFormatter = new Jsona();
+        const data = dataFormatter.deserialize(res.data);
+        const newEvents = events.map((el) => {
+          if(el.id === id) {
+            el = {...data, className: statusColorMap[data.status]};
+          }
+          return el;
+        });
+        setEvents(newEvents);
+      });
+  }
   
   return (
     <>
-      <Card className="shadow">
+      <Card className="shadow mb-0">
         <CardHeader className="border-0 text-white bg-primary pb-6 px-5">
           <Row className="pt-4">
             <Col lg="6">
@@ -56,7 +65,7 @@ export default function Dashboard(props) {
           </Row>
         </CardHeader>
         <CardBody className="mt--6">
-          <div className="bg-white shadow-lg p-5" style={{ borderRadius: 5 }}>
+          <div className="bg-white shadow-lg p-5 pb-7" style={{ borderRadius: 5 }}>
             <ReactTable
               resizable={false}
               data={events}
@@ -64,19 +73,22 @@ export default function Dashboard(props) {
               columns={[
                 {
                   Header: "Username",
-                  id: "name",
+                  id: "username",
                   Cell: (row) => {
                     const {user} = row.original;
                     return `${user.first_name} ${user.last_name}`;
                   },
+                  style: { whiteSpace: "unset"},
                 },
                 {
                   Header: "Start Date",
                   accessor: "start",
+                  style: { whiteSpace: "unset"},
                 },
                 {
                   Header: "End Date",
                   accessor: "end",
+                  style: { whiteSpace: "unset"},
                 },
                 {
                   id: "duration",
@@ -89,25 +101,64 @@ export default function Dashboard(props) {
                 },
                 {
                   Header: "Reason",
-                  accessor: "title"
+                  accessor: "title",
+                  style: { whiteSpace: "unset"},
                 },
                 {
                   id: "status",
+                  accessor: "status",
                   Header: "Status",
                   Cell: (row) => {
                     const {status} = row.original;
                     return (
-                      <Badge color="" className="badge-dot float-right">
-                        <i className="bg-info" />
+                      <Badge color="" className="badge-dot float-right text-capitalize">
+                        <i className={statusColorMap[status]} />
                         {status}
                       </Badge>
                     )
                   },
-                }
+                  filterable: true,
+                },
+                {
+                  Header: 'Actions',
+                  show: isAdmin(),
+                  Cell: (row) => (
+                    <div className="actions-right">
+                      {row.original.status !== "approved" && (
+                        <Button
+                          onClick={() => {
+                            const id = row.original.id;
+                            handleActions('approved', id);
+                          }}
+                          color="success"
+                          size="sm"
+                          className="btn-icon btn-link like"
+                        >
+                          <i className="tim-icons icon-check-2 text-white font-weight-bold" />
+                        </Button>
+                      )}
+                      {row.original.status !== "rejected" && (
+                        <Button
+                          onClick={() => {
+                            const id = row.original.id;
+                            handleActions('rejected', id);
+                          }}
+                          color="danger"
+                          size="sm"
+                          className="btn-icon btn-link like"
+                        >
+                          <i className="tim-icons icon-simple-remove text-white font-weight-bold" />
+                        </Button>
+                      )}
+                    </div>
+                  ),
+                  filterable: false,
+                  sortable: false,
+                },
               ]}
               defaultPageSize={5}
               showPaginationBottom
-              className="-striped -highlight"
+              className="-striped -highlight text-capitalize"
             />
           </div>
         </CardBody>

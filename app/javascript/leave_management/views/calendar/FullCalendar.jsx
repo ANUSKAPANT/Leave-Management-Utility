@@ -13,6 +13,11 @@ import Jsona from 'jsona';
 import apiCall from '../../helpers/apiCall';
 
 let calendar;
+const statusColorMap = {
+  pending: "bg-info",
+  approved: "bg-success",
+  rejected: "bg-danger",
+};
 
 class FullCalendar extends React.Component {
   state = {
@@ -20,12 +25,14 @@ class FullCalendar extends React.Component {
     alert: null
   };
 
+  isAdmin = () => this.props.userData.role === "admin";
+
   componentDidMount() {
     apiCall.fetchEntities('/leave_requests.json')
       .then((res) => {
         const dataFormatter = new Jsona();
         const data = dataFormatter.deserialize(res.data);
-        const events = data.map((el) => ({...el, className: 'bg-info'}));
+        const events = data.map((el) => ({...el, className: statusColorMap[el.status]}));
         this.setState({
           events: events,
         });
@@ -55,6 +62,8 @@ class FullCalendar extends React.Component {
           modalChange: true,
           eventId: event.id,
           eventTitle: event.title,
+          eventStatus: event.extendedProps.status,
+          userName: event.extendedProps.user.first_name + ' ' + event.extendedProps.user.last_name,
           radios: "bg-info",
           event: event,
         });
@@ -79,15 +88,16 @@ class FullCalendar extends React.Component {
         title: this.state.eventTitle,
         start: this.state.startDate,
         end: this.state.endDate,
-        status: 0,
+        status: "pending",
       }
     };
     apiCall.submitEntity(postData, '/leave_requests.json')
       .then((res) => {
-        const { data } = res;
+        const dataFormatter = new Jsona();
+        const data = dataFormatter.deserialize(res.data);
         const { events } = this.state;
-        const newEvents = [...events, {...data, className: 'bg-info'}];
-        calendar.addEvent({...data, className: "bg-info"});
+        const newEvents = [...events, {...data, className: statusColorMap[data.status]}];
+        calendar.addEvent({...data, className: statusColorMap[data.status]});
         this.setState({
           events: newEvents,
           modalAdd: false,
@@ -104,14 +114,16 @@ class FullCalendar extends React.Component {
     const id = this.state.eventId;
     const postData = {
       title: this.state.eventTitle,
+      status: this.state.eventStatus,
     };
     apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
       .then((res) => {
-        const { data } = res;
+        const dataFormatter = new Jsona();
+        const data = dataFormatter.deserialize(res.data);
         const { events } = this.state;
         const newEvents = events.map((el) => {
           if(el.id.toString() === id) {
-            el = {...data, className: "bg-info"};
+            el = {...data, className: statusColorMap[data.status]};
           }
           return el;
         });
@@ -155,14 +167,14 @@ class FullCalendar extends React.Component {
     return (
       <>
         {this.state.alert}
-        <Card className="card-calendar">
+        <Card className="card-calendar mb-0">
           <CardHeader className="bg-primary pb-5 px-5">
             <Row className="align-items-center py-4">
               <Col lg="6">
                 <h6 className="fullcalendar-title h2 text-white d-inline-block mb-0 mr-1">
                   {this.state.currentDate}
                 </h6>
-                <Nav aria-label="breadcrumb" className="d-none d-lg-inline-block ml-lg-4">
+                <Nav aria-label="breadcrumb" className="d-none d-inline-block ml-lg-4">
                   <ol className="breadcrumb breadcrumb-links breadcrumb-dark">
                     <li className="breadcrumb-item"><i className="fas fa-home" /></li>
                     <li className="breadcrumb-item" onClick={() => this.props.history.push('/admin/dashboard')}>Dashboard</li>
@@ -261,7 +273,7 @@ class FullCalendar extends React.Component {
           toggle={() => this.setState({ modalChange: false })}
           className="modal-dialog-centered modal-secondary"
         >
-          <div className="modal-header p-2">
+          <div className="modal-header p-1">
             <button
               aria-hidden
               className="close"
@@ -273,6 +285,9 @@ class FullCalendar extends React.Component {
             </button>
           </div>
           <div className="modal-body">
+            <label className="font-weight-bold">
+              {this.state.userName}
+            </label>
             <Form className="edit-event--form">
               <FormGroup>
                 <label className="form-control-label">Reason</label>
@@ -286,73 +301,38 @@ class FullCalendar extends React.Component {
                   }
                 />
               </FormGroup>
-              <FormGroup>
-                <label className="form-control-label d-block mb-3">
-                  Status color
-                </label>
-                <ButtonGroup
-                  className="btn-group-toggle btn-group-colors event-tag mb-0"
-                  data-toggle="buttons"
-                >
+              {this.isAdmin() && (
+                <FormGroup>
+                  <label className="form-control-label d-block mb-3 text-capitalize">
+                    Status - {this.state.eventStatus}
+                  </label>
                   <Button
-                    className={classnames("bg-info", {
-                      active: this.state.radios === "bg-info"
-                    })}
-                    color=""
-                    type="button"
-                    onClick={() => this.setState({ radios: "bg-info" })}
-                  />
+                    onClick={() => this.setState({ eventStatus: "approved" })}
+                    disabled={this.state.eventStatus === "approved"}
+                    color="success"
+                    size="sm"
+                    className="btn-icon btn-link like"
+                  >
+                    <i className="tim-icons icon-check-2 text-white font-weight-bold" />
+                  </Button>
+                  <label className="form-control-label">
+                    Approve
+                  </label>
+                  <br />
                   <Button
-                    className={classnames("bg-warning", {
-                      active: this.state.radios === "bg-warning"
-                    })}
-                    color=""
-                    type="button"
-                    onClick={() =>
-                      this.setState({ radios: "bg-warning" })
-                    }
-                  />
-                  <Button
-                    className={classnames("bg-danger", {
-                      active: this.state.radios === "bg-danger"
-                    })}
-                    color=""
-                    type="button"
-                    onClick={() => this.setState({ radios: "bg-danger" })}
-                  />
-                  <Button
-                    className={classnames("bg-success", {
-                      active: this.state.radios === "bg-success"
-                    })}
-                    color=""
-                    type="button"
-                    onClick={() =>
-                      this.setState({ radios: "bg-success" })
-                    }
-                  />
-                  <Button
-                    className={classnames("bg-default", {
-                      active: this.state.radios === "bg-default"
-                    })}
-                    color=""
-                    type="button"
-                    onClick={() =>
-                      this.setState({ radios: "bg-default" })
-                    }
-                  />
-                  <Button
-                    className={classnames("bg-primary", {
-                      active: this.state.radios === "bg-primary"
-                    })}
-                    color=""
-                    type="button"
-                    onClick={() => {
-                      this.setState({ radios: "bg-primary" });
-                    }}
-                  />
-                </ButtonGroup>
-              </FormGroup>
-              <input className="edit-event--id" type="hidden" />
+                    onClick={() => this.setState({ eventStatus: "rejected" })}
+                    disabled={this.state.eventStatus === "rejected"}
+                    color="danger"
+                    size="sm"
+                    className="btn-icon btn-link like"
+                  >
+                    <i className="tim-icons icon-simple-remove text-white font-weight-bold" />
+                  </Button>
+                  <label className="form-control-label">
+                    Reject
+                  </label>
+                </FormGroup>
+              )}
             </Form>
           </div>
           <div className="modal-footer">

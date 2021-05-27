@@ -18,7 +18,8 @@ class LeaveRequestsController < ApplicationController
     @leave_request = LeaveRequest.new(leave_request_params)
     @leave_request.user = current_user
     if @leave_request.save
-      render json: @leave_request, status: :created
+      options = { include: %i[user] }
+      render json: LeaveRequestSerializer.new(@leave_request, options).serialized_json
     else
       render json: @leave_request.errors, status: :unprocessable_entity
     end
@@ -30,7 +31,8 @@ class LeaveRequestsController < ApplicationController
 
   def update
     if @leave_request.update(leave_request_params)
-      render json: @leave_request, status: :created
+      options = { include: %i[user] }
+      render json: LeaveRequestSerializer.new(@leave_request, options).serialized_json
     else
       render json: @leave_request.errors, status: :unprocessable_entity
     end

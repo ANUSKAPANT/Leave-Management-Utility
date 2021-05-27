@@ -15,19 +15,21 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, {useEffect} from "react";
+import React, { useEffect, useContext } from "react";
 import { useLocation, Route, Switch, Redirect } from "react-router-dom";
 // reactstrap components
 import { Container } from "reactstrap";
 // core components
 import AdminNavbar from "../components/Navbars/AdminNavbar";
 import Footer from "../components/Footers/Footer";
-
+import Store from '../Store';
 import routes from "../routes.js";
 
 const Admin = (props) => {
   const mainContent = React.useRef(null);
   const location = useLocation();
+  const { globalState } = useContext(Store);
+  const { userData } = globalState;
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -40,8 +42,8 @@ const Admin = (props) => {
       return (
         <Route
           path={prop.layout + prop.path}
-          component={prop.component}
           key={key}
+          render={(props) => <prop.component userData={userData} {...props} />} 
         />
       );
     } else {
@@ -72,9 +74,7 @@ const Admin = (props) => {
          <Switch>
           {getRoutes(routes)}
         </Switch>
-        <Container fluid>
-          <Footer />
-        </Container>
+        {/* <Footer /> */}
       </div>
     </>
   );
