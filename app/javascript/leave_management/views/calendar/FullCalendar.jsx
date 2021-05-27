@@ -3,7 +3,7 @@ import {
   Button, ButtonGroup, Card, CardHeader, CardBody, Container,
   FormGroup, Form, Input, Modal, Row, Col, Nav,
 } from "reactstrap";
-import classnames from "classnames";
+import dayjs from 'dayjs';
 // JavaScript library that creates a callendar with events
 import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -47,6 +47,10 @@ class FullCalendar extends React.Component {
       selectable: true,
       editable: true,
       events: events,
+      // selectable dates
+      selectAllow: (selectInfo) => {
+        return dayjs().diff(selectInfo.start)/86400000 <= 1;
+      },
       // Add new event
       select: info => {
         this.setState({
