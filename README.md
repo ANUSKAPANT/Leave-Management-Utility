@@ -1,24 +1,18 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
+Leave Management Utility
 
 * Ruby version
+    `2.6.7`
+    
+**Getting Started**
 
-* System dependencies
+* `bundle install` `rails db:create` `rails db:migrate`
 
-* Configuration
+* `yarn install` for downloading the required packages and run `bin/webpack-dev-server` for assets compilation.
 
-* Database creation
+**Running Application**
 
-* Database initialization
+* run `rails server`
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* Go to `localhost:3000`
