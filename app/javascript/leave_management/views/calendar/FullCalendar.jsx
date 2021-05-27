@@ -11,6 +11,7 @@ import interaction from "@fullcalendar/interaction";
 import ConfirmationDeleteAlert from "../../components/Alert/ConfirmationDeleteAlert";
 import Jsona from 'jsona';
 import apiCall from '../../helpers/apiCall';
+import NotifyUser from '../../components/Alert/NotifyUser';
 
 let calendar;
 const statusColorMap = {
@@ -25,7 +26,7 @@ class FullCalendar extends React.Component {
     alert: null
   };
 
-  isAdmin = () => this.props.userData.role === "admin";
+  isAdmin = () => this.props.globalState.userData.role === "admin";
 
   componentDidMount() {
     apiCall.fetchEntities('/leave_requests.json')
@@ -114,7 +115,8 @@ class FullCalendar extends React.Component {
       });
   };
 
-  updateEvent = () => {
+  updateEvent = (e) => {
+    e.preventDefault();
     const id = this.state.eventId;
     const postData = {
       title: this.state.eventTitle,
@@ -139,6 +141,7 @@ class FullCalendar extends React.Component {
           eventId: undefined,
           event: undefined
         });
+        NotifyUser(`Successfully updated`, 'bc', 'success', this.props.globalState.notificationRef);
         this.createCalendar(newEvents);
       });
   };
@@ -292,7 +295,7 @@ class FullCalendar extends React.Component {
             <label className="font-weight-bold">
               {this.state.userName}
             </label>
-            <Form className="edit-event--form">
+            <Form className="edit-event--form" type="submit" onSubmit={(e) => this.updateEvent(e)}>
               <FormGroup>
                 <label className="form-control-label">Reason</label>
                 <Input
@@ -340,7 +343,7 @@ class FullCalendar extends React.Component {
             </Form>
           </div>
           <div className="modal-footer">
-            <Button color="primary" onClick={this.updateEvent}>
+            <Button color="primary" type="submit" onClick={(e) => this.updateEvent(e)}>
               Update
             </Button>
             <Button color="danger" onClick={() => this.setState({ modalChange: false }, () => this.deleteEventAlert())}>

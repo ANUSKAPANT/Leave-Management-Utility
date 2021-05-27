@@ -7,7 +7,6 @@ import {
 } from 'reactstrap';
 import axios from 'axios';
 import NotificationAlert from 'react-notification-alert';
-// import cardPrimaryImage from 'black-dashboard/assets/img/card-primary.png';
 
 class Login extends React.Component {
   constructor(props) {

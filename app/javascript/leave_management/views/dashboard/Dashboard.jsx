@@ -8,6 +8,7 @@ import {
 import ReactTable from "../../components/ReactTable/ReactTable";
 import Jsona from 'jsona';
 import apiCall from '../../helpers/apiCall';
+import NotifyUser from '../../components/Alert/NotifyUser';
 
 export default function Dashboard(props) {
   const [events, setEvents] = useState([]);
@@ -16,7 +17,7 @@ export default function Dashboard(props) {
     approved: "bg-success",
     rejected: "bg-warning",
   };
-  const isAdmin = () => props.userData.role === "admin";
+  const isAdmin = () => props.globalState.userData.role === "admin";
 
   useEffect(() => {
     apiCall.fetchEntities('/leave_requests.json')
@@ -42,6 +43,7 @@ export default function Dashboard(props) {
           return el;
         });
         setEvents(newEvents);
+        NotifyUser(`Successfully ${status}!`, 'bc', `${status === 'approved' ? 'success' : 'danger'}`, props.globalState.notificationRef);
       });
   }
   

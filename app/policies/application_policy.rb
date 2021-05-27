@@ -36,10 +36,10 @@ class ApplicationPolicy
     user_and_above?
   end
 
-  def self.permit_access_to_all_users(*actions)
+  def self.permit_access_to_user_and_above(*actions)
     actions.each do |action|
       define_method("#{action}?") do
-        user.present?
+        user_and_above?
       end
     end
   end

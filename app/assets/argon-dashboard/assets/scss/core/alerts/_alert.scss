@@ -2,6 +2,11 @@
 // Alert
 //
 
+.rna-container {
+    z-index: 1051;
+    position: fixed;
+}
+
 .alert {
 
     font-size: $font-size-sm;

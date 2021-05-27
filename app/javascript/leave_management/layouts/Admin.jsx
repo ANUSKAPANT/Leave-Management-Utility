@@ -43,7 +43,7 @@ const Admin = (props) => {
         <Route
           path={prop.layout + prop.path}
           key={key}
-          render={(props) => <prop.component userData={userData} {...props} />} 
+          render={(props) => <prop.component globalState={globalState} {...props} />} 
         />
       );
     } else {
