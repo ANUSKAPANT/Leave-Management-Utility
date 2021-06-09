@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import LeaveManagementApp from '../leave_management';
+import LeaveManagementApp from '../leave_management/index';
 
 document.addEventListener('DOMContentLoaded', () => {
   const node = document.getElementById('user_data');

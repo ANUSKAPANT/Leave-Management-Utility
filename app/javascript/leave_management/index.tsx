@@ -9,8 +9,11 @@ import LeaveManagementInit from './LeaveManagementInit';
 import history from './history';
 import AdminLayout from './layouts/Admin';
 
+interface Props {
+  data: object;
+}
 
-export default function LeaveManagementApp({ data }) {
+const LeaveManagementApp: React.FC<Props> = ({ data }) => {
   const notificationAlertRef = React.useRef(null);
 
   return (
@@ -29,3 +32,5 @@ export default function LeaveManagementApp({ data }) {
     </>
   );
 };
+
+export default LeaveManagementApp;

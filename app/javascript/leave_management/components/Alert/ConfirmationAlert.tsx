@@ -1,10 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import ReactBSAlert from 'react-bootstrap-sweetalert';
 
-export default function ConfirmationAlert({
-  handleConfirm, hideAlert, success = false, confirmBtnText, successMessage, title,
-}) {
+interface Props {
+  handleConfirm?: Function;
+  hideAlert: Function;
+  success: boolean;
+  confirmBtnText: string;
+  successMessage?: string;
+  title: string;
+}
+
+const ConfirmationAlert: React.FC<Props> = ({
+  handleConfirm, hideAlert, success = false, confirmBtnText, successMessage = "Success!", title,
+}) => {
   return (
     <>
       {!success && (
@@ -41,16 +49,4 @@ export default function ConfirmationAlert({
   );
 }
 
-ConfirmationAlert.propTypes = {
-  handleConfirm: PropTypes.func,
-  success: PropTypes.bool.isRequired,
-  hideAlert: PropTypes.func.isRequired,
-  confirmBtnText: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  successMessage: PropTypes.string,
-};
-
-ConfirmationAlert.defaultProps = {
-  successMessage: "Success!",
-  handleConfirm: () => 1,
-};
+export default ConfirmationAlert;

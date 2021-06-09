@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 export const useStoreContext = () => React.useContext(Store);
 
@@ -19,10 +18,13 @@ function reducer(state, action) {
   }
 }
 
-export function StoreProvider(props) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export const StoreProvider:React.FC<Props> = ({ children }) => {
   const [globalState, dispatch] = React.useReducer(reducer, initialState);
   const value = { globalState, dispatch };
-  const { children } = props;
 
   return (
     <Store.Provider value={value}>
@@ -31,9 +33,5 @@ export function StoreProvider(props) {
   );
 }
 
-const Store = React.createContext();
+const Store = React.createContext(null);
 export default Store;
-
-StoreProvider.propTypes = {
-  children: PropTypes.node.isRequired,
-};

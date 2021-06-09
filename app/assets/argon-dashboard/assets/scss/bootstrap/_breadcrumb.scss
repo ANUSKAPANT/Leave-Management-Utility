@@ -5,7 +5,7 @@
   margin-bottom: $breadcrumb-margin-bottom;
   @include font-size($breadcrumb-font-size);
   list-style: none;
-  color: white;
+  color: rgb(173, 162, 162);
   @include border-radius($breadcrumb-border-radius);
 }
 
@@ -39,4 +39,9 @@
   &.active {
     color: $breadcrumb-active-color;
   }
+}
+
+.breadcrumb-item:hover {
+  cursor: pointer;
+  color: whitesmoke;
 }

@@ -1,18 +1,18 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
+import React from 'react';
 import ReactTableLibrary from 'react-table-v6';
-import PropTypes from 'prop-types';
 import { filterCaseInsensitive } from '../../utils';
 import Loading from '../../loading';
 import NoData from '../../noData';
 
-// import apiCall from '../../helpers/apiCall';
+interface Props {
+  loading: boolean;
+  [x: string]: any;
+}
 
-export default function ReactTable(props) {
-  const {
-    loading, ...tableProps
-  } = props;
-
+const ReactTable:React.FC<Props> = (props) => {
+  const { loading, ...tableProps } = props;
+  
   return (
     <ReactTableLibrary
       NoDataComponent={loading ? Loading : NoData}
@@ -20,9 +20,6 @@ export default function ReactTable(props) {
       {...tableProps}
     />
   );
-}
-
-ReactTable.propTypes = {
-  loading: PropTypes.bool.isRequired,
 };
 
+export default ReactTable;

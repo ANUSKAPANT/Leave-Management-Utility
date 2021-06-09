@@ -9,7 +9,7 @@ import {
 import axios from 'axios';
 import NotificationAlert from 'react-notification-alert';
 
-export default function Login() {
+const Login:React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   let notificationAlert;

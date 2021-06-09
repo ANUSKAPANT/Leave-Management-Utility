@@ -16,16 +16,14 @@
 
 */
 import React, { useEffect, useContext } from "react";
-import { useLocation, Route, Switch, Redirect } from "react-router-dom";
-// reactstrap components
-import { Container } from "reactstrap";
+import { useLocation, Route, Switch } from "react-router-dom";
 // core components
 import AdminNavbar from "../components/Navbars/AdminNavbar";
 import Footer from "../components/Footers/Footer";
 import Store from '../Store';
-import routes from "../routes.js";
+import routes from "../routes";
 
-const Admin = (props) => {
+const Admin:React.FC = () => {
   const mainContent = React.useRef(null);
   const location = useLocation();
   const { globalState } = useContext(Store);
@@ -68,11 +66,10 @@ const Admin = (props) => {
     <>
       <div className="main-content" ref={mainContent}>
         <AdminNavbar
-          {...props}
           brandText={getBrandText(window.location.pathname)}
         />
          <Switch>
-          {getRoutes(routes)}
+          {getRoutes()}
         </Switch>
         {/* <Footer /> */}
       </div>

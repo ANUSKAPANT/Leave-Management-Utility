@@ -1,30 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
-  Badge,
-  Table,
-  Card, CardBody, CardHeader, Nav, Row, Col,
+  Button, Badge, Card, CardBody, CardHeader, Nav, Row, Col,
 } from "reactstrap";
 import ReactTable from "../../components/ReactTable/ReactTable";
 import Jsona from 'jsona';
 import apiCall from '../../helpers/apiCall';
 import NotifyUser from '../../components/Alert/NotifyUser';
 
-export default function Dashboard(props) {
+interface Props {
+  globalState: any;
+  history: any;
+}
+
+const Dashboard:React.FC<Props> = ({ globalState, history }) => {
   const [events, setEvents] = useState([]);
   const statusColorMap = {
     pending: "bg-info",
     approved: "bg-success",
     rejected: "bg-warning",
   };
-  const isAdmin = () => props.globalState.userData.role === "admin";
+  const isAdmin = () => globalState.userData.role === "admin";
 
   useEffect(() => {
     apiCall.fetchEntities('/leave_requests.json')
       .then((res) => {
         const dataFormatter = new Jsona();
-        const eventData = dataFormatter.deserialize(res.data);
+        const eventData:any = dataFormatter.deserialize(res.data);
         setEvents(eventData);
+        console.log(eventData);
       });
   }, []);
 
@@ -35,7 +38,7 @@ export default function Dashboard(props) {
     apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
       .then((res) => {
         const dataFormatter = new Jsona();
-        const data = dataFormatter.deserialize(res.data);
+        const data:any = dataFormatter.deserialize(res.data);
         const newEvents = events.map((el) => {
           if(el.id === id) {
             el = {...data, className: statusColorMap[data.status]};
@@ -43,7 +46,7 @@ export default function Dashboard(props) {
           return el;
         });
         setEvents(newEvents);
-        NotifyUser(`Successfully ${status}!`, 'bc', `${status === 'approved' ? 'success' : 'danger'}`, props.globalState.notificationRef);
+        NotifyUser(`Successfully ${status}!`, 'bc', `${status === 'approved' ? 'success' : 'danger'}`, globalState.notificationRef);
       });
   }
   
@@ -58,9 +61,8 @@ export default function Dashboard(props) {
               </h6>
               <Nav aria-label="breadcrumb" className="d-none d-inline-block ml-lg-4">
                 <ol className="breadcrumb breadcrumb-links breadcrumb-dark">
-                  <li className="breadcrumb-item"><i className="fas fa-home" /></li>
-                  <li className="breadcrumb-item active" aria-current="page">Dashboard</li>
-                  <li className="breadcrumb-item" onClick={() => props.history.push('/admin/calendar')}>Calendar</li>
+                  <li className="breadcrumb-item active" aria-current="page"><i className="fas fa-home" /> - Dashboard</li>
+                  <li className="breadcrumb-item" onClick={() => history.push('/admin/calendar')}>Calendar</li>
                 </ol>
               </Nav>
             </Col>
@@ -97,7 +99,9 @@ export default function Dashboard(props) {
                   Header: "Duration",
                   Cell: (row) => {
                     const {start, end} = row.original;
-                    const numberOfDays = Math.abs(new Date(start) - new Date(end))/86400000;
+                    const startDate: number = new Date(start).getTime();
+                    const endDate: number = new Date(end).getTime();
+                    const numberOfDays = Math.abs(startDate - endDate)/86400000;
                     return numberOfDays;
                   },
                 },
@@ -168,3 +172,5 @@ export default function Dashboard(props) {
     </>
   );
 };
+
+export default Dashboard;

@@ -1,7 +1,6 @@
 import React from "react";
 import { 
-  Button, ButtonGroup, Card, CardHeader, CardBody, Container,
-  FormGroup, Form, Input, Modal, Row, Col, Nav,
+  Button, Card, CardHeader, CardBody, FormGroup, Form, Input, Modal, Row, Col, Nav,
 } from "reactstrap";
 import dayjs from 'dayjs';
 // JavaScript library that creates a callendar with events
@@ -20,10 +19,42 @@ const statusColorMap = {
   rejected: "bg-danger",
 };
 
-class FullCalendar extends React.Component {
-  state = {
+interface Props {
+  globalState: any;
+  history: any;
+}
+
+interface State {
+  events: object[];
+  modalAdd: boolean;
+  startDate: string;
+  endDate: string;
+  radios: string;
+  modalChange: boolean;
+  currentDate: string;
+  eventId: string;
+  eventTitle: string;
+  eventStatus: string;
+  userName: string;
+  event: object;
+  alert: any;
+}
+
+class FullCalendar extends React.Component<Props, State>  {
+  state: State = {
     events: [],
-    alert: null
+    alert: null,
+    eventId: '',
+    eventTitle: '',
+    eventStatus: '',
+    startDate: '',
+    endDate: '',
+    userName: '',
+    modalAdd: false,
+    modalChange: false,
+    event: {},
+    currentDate: '',
+    radios: '',
   };
 
   isAdmin = () => this.props.globalState.userData.role === "admin";
@@ -42,7 +73,8 @@ class FullCalendar extends React.Component {
   };
 
   createCalendar = (events) => {
-    calendar = new Calendar(this.refs.calendar, {
+    let calendarEl: HTMLElement = document.querySelector('.calendar');
+    calendar = new Calendar(calendarEl, {
       plugins: [interaction, dayGridPlugin],
       headerToolbar:false,
       selectable: true,
@@ -87,7 +119,8 @@ class FullCalendar extends React.Component {
     });
   };
 
-  addNewEvent = () => {
+  addNewEvent = (e) => {
+    e.preventDefault();
     const postData = {
       leave_request: {
         title: this.state.eventTitle,
@@ -99,14 +132,13 @@ class FullCalendar extends React.Component {
     apiCall.submitEntity(postData, '/leave_requests.json')
       .then((res) => {
         const dataFormatter = new Jsona();
-        const data = dataFormatter.deserialize(res.data);
+        const data:any = dataFormatter.deserialize(res.data);
         const { events } = this.state;
         const newEvents = [...events, {...data, className: statusColorMap[data.status]}];
         calendar.addEvent({...data, className: statusColorMap[data.status]});
         this.setState({
           events: newEvents,
           modalAdd: false,
-          events: newEvents,
           startDate: undefined,
           endDate: undefined,
           radios: "bg-info",
@@ -125,9 +157,9 @@ class FullCalendar extends React.Component {
     apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
       .then((res) => {
         const dataFormatter = new Jsona();
-        const data = dataFormatter.deserialize(res.data);
+        const data:any = dataFormatter.deserialize(res.data);
         const { events } = this.state;
-        const newEvents = events.map((el) => {
+        const newEvents = events.map((el:any) => {
           if(el.id.toString() === id) {
             el = {...data, className: statusColorMap[data.status]};
           }
@@ -150,7 +182,7 @@ class FullCalendar extends React.Component {
     apiCall.deleteEntity(`/leave_requests/${id}`)
       .then(() => {
         const { events } = this.state;
-        const newEvents = events.filter((el) => el.id.toString() !== id);
+        const newEvents = events.filter((el:any) => el.id.toString() !== id);
         this.setState({
           events: newEvents,
           radios: "bg-info",
@@ -183,8 +215,7 @@ class FullCalendar extends React.Component {
                 </h6>
                 <Nav aria-label="breadcrumb" className="d-none d-inline-block ml-lg-4">
                   <ol className="breadcrumb breadcrumb-links breadcrumb-dark">
-                    <li className="breadcrumb-item"><i className="fas fa-home" /></li>
-                    <li className="breadcrumb-item" onClick={() => this.props.history.push('/admin/dashboard')}>Dashboard</li>
+                    <li className="breadcrumb-item" onClick={() => this.props.history.push('/admin/dashboard')}><i className="fas fa-home" /> - Dashboard</li>
                     <li className="breadcrumb-item active" aria-current="page">Calendar</li>
                   </ol>
                 </Nav>
@@ -255,7 +286,7 @@ class FullCalendar extends React.Component {
             </button>
           </div>
           <div className="modal-body py-0">
-            <form className="new-event--form">
+            <form className="new-event--form" onSubmit={(e) => this.addNewEvent(e)}>
               <FormGroup>
                 <label className="form-control-label">Reason</label>
                 <Input
@@ -270,7 +301,7 @@ class FullCalendar extends React.Component {
             </form>
           </div>
           <div className="modal-footer">
-            <Button className="new-event--add" color="primary" type="button" onClick={this.addNewEvent}>
+            <Button className="new-event--add" color="primary" type="button" onClick={(e) => this.addNewEvent(e)}>
               Request Leave
             </Button>
           </div>

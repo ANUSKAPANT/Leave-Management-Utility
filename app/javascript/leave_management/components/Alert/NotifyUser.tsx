@@ -1,6 +1,6 @@
 import React from 'react';
-export default function NotifyUser(message, position, type, notifierRef) {
-  console.log('hi');
+
+export default function NotifyUser (message:string, position:string, type:string, notifierRef) {
   const options = {
     place: position,
     message: (

@@ -19,15 +19,20 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 // reactstrap components
 import {
-  DropdownMenu, DropdownItem, UncontrolledDropdown, DropdownToggle, NavLink, Navbar, Nav, Container, Media,
+  DropdownMenu, DropdownItem, UncontrolledDropdown, DropdownToggle, Navbar, Nav, Container, Media,
 } from "reactstrap";
-import avatar from 'argon-dashboard/assets/img/avatar';
 import axios from 'axios';
 import Store from '../../Store';
 
-export default function AdminNavbar(props) {
+const  avatar = require('argon-dashboard/assets/img/avatar');
+
+interface Props {
+  brandText: string;
+}
+
+const AdminNavbar:React.FC<Props> = ({ brandText }) => {
   const { globalState } = useContext(Store);
-  const fullName = globalState.userData.first_name + " " +globalState.userData.last_name;
+  const fullName = globalState.userData.first_name + " " + globalState.userData.last_name;
 
   const handleLogout = () => {
     const csrf = document.querySelector("meta[name='csrf-token']").getAttribute('content');
@@ -49,9 +54,9 @@ export default function AdminNavbar(props) {
         <Container fluid>
           <Link
             className="h4 mb-0 text-white text-uppercase d-none d-inline-block"
-            to={`/admin/${props.brandText.toLowerCase()}`}
+            to={`/admin/${brandText.toLowerCase()}`}
           >
-            {props.brandText}
+            {brandText}
           </Link>
           <Nav className="align-items-center d-none d-flex" navbar>
             <UncontrolledDropdown nav>
@@ -83,3 +88,5 @@ export default function AdminNavbar(props) {
     </>
   );
 };
+
+export default AdminNavbar;
