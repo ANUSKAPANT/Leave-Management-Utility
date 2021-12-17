@@ -175,6 +175,23 @@ class FullCalendar extends React.Component {
     });
   };
 
+  resetToDefaultState = () => {
+    this.setState({
+      modalChange: false,
+      modalAdd: false,
+      errorMessage: ''
+    })
+  }
+
+  addOrUpdate = (e) => {
+    if(this.state.modalChange) {
+      this.updateEvent(e)
+    }
+    else {
+      this.addNewEvent()
+    }
+  }
+
   render() {
     return (
       <>
@@ -243,47 +260,11 @@ class FullCalendar extends React.Component {
             </div>
           </CardBody>
         </Card>
+        
+        {/* MODAL to create or update existing leave request */}
         <Modal
-          isOpen={this.state.modalAdd}
-          toggle={() => this.setState({ modalAdd: false, errorMessage: '' })}
-          className="modal-dialog-centered modal-secondary"
-        >
-          <div className="modal-header p-2">
-            <button
-              aria-hidden
-              className="close"
-              data-dismiss="modal"
-              type="button"
-              onClick={() => this.setState({ modalAdd: false, errorMessage: '' })}
-            >
-              <i className="tim-icons icon-simple-remove" />
-            </button>
-          </div>
-          <div className="modal-body py-0">
-            <form className="new-event--form">
-              <FormGroup>
-                <label className="form-control-label">Reason</label>
-                <Input
-                  className="form-control-alternative new-event--title"
-                  placeholder="Reason"
-                  type="text"
-                  onChange={e =>
-                    this.setState({ eventTitle: e.target.value })
-                  }
-                />
-                <span className="red-text">{this.state.errorMessage}</span>
-              </FormGroup>
-            </form>
-          </div>
-          <div className="modal-footer">
-            <Button className="new-event--add" color="primary" type="button" onClick={this.addNewEvent}>
-              Request Leave
-            </Button>
-          </div>
-        </Modal>
-        <Modal
-          isOpen={this.state.modalChange}
-          toggle={() => this.setState({ modalChange: false })}
+          isOpen={this.state.modalChange || this.state.modalAdd}
+          toggle={() => this.resetToDefaultState()}
           className="modal-dialog-centered modal-secondary"
         >
           <div className="modal-header p-1">
@@ -292,16 +273,25 @@ class FullCalendar extends React.Component {
               className="close"
               data-dismiss="modal"
               type="button"
-              onClick={() => this.setState({ modalChange: false })}
+              onClick={() => this.resetToDefaultState()}
             >
               <i className="tim-icons icon-simple-remove" />
             </button>
           </div>
           <div className="modal-body">
-            <label className="font-weight-bold">
-              {this.state.userName}
-            </label>
-            <Form className="edit-event--form" type="submit" onSubmit={(e) => this.updateEvent(e)}>
+            {
+              this.state.modalChange && (
+                <label className="font-weight-bold">
+                  {this.state.userName}
+                </label>
+              )
+            }
+            
+            <Form 
+              className="edit-event--form" 
+              type="submit" 
+              onSubmit={(e) => { this.addOrUpdate(e) }}
+            >
               <FormGroup>
                 <label className="form-control-label">Reason</label>
                 <Input
@@ -314,7 +304,7 @@ class FullCalendar extends React.Component {
                   }
                 />
               </FormGroup>
-              {this.isAdmin() && (
+              {this.state.modalChange && this.isAdmin() && (
                 <FormGroup>
                   <label className="form-control-label d-block mb-3 text-capitalize">
                     Status - {this.state.eventStatus}
@@ -349,12 +339,12 @@ class FullCalendar extends React.Component {
             </Form>
           </div>
           <div className="modal-footer">
-            <Button color="primary" type="submit" onClick={(e) => this.updateEvent(e)}>
-              Update
+            <Button color="primary" type="submit" onClick={(e) => this.addOrUpdate(e)}>
+              { this.state.modalChange ? 'Update':'Request Leave'}
             </Button>
-            <Button color="danger" onClick={() => this.setState({ modalChange: false }, () => this.deleteEventAlert())}>
+            {this.state.modalChange && (<Button color="danger" onClick={() => this.setState({ modalChange: false }, () => this.deleteEventAlert())}>
               Delete
-            </Button>
+            </Button>)}
           </div>
         </Modal>
       </>
