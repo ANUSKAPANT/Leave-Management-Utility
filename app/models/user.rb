@@ -6,4 +6,9 @@ class User < ApplicationRecord
   enum role: { user: 0, admin: 1 }
   has_many :leave_requests
   validates :first_name, :last_name, presence: true
+
+  def upcoming_leaves
+    leave_requests.where("end_date > ?", Date.today)
+  end
+  
 end

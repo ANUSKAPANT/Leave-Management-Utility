@@ -45,6 +45,6 @@ class LeaveRequestsController < ApplicationController
     authorize @leave_request
   end
   def leave_request_params
-    params.require(:leave_request).permit(:title, :start, :end, :status)
+    params.require(:leave_request).permit(:title, :start, :end_date, :status)
   end
 end

@@ -92,7 +92,7 @@ class FullCalendar extends React.Component {
       leave_request: {
         title: this.state.eventTitle,
         start: this.state.startDate,
-        end: this.state.endDate,
+        end_date: this.state.endDate,
         status: "pending",
       }
     };
@@ -112,6 +112,11 @@ class FullCalendar extends React.Component {
           radios: "bg-info",
           eventTitle: undefined
         });
+      })
+      .catch((error) => {
+        this.setState({
+          errorMessage: error.response.data.message[0]
+        })
       });
   };
 
@@ -240,7 +245,7 @@ class FullCalendar extends React.Component {
         </Card>
         <Modal
           isOpen={this.state.modalAdd}
-          toggle={() => this.setState({ modalAdd: false })}
+          toggle={() => this.setState({ modalAdd: false, errorMessage: '' })}
           className="modal-dialog-centered modal-secondary"
         >
           <div className="modal-header p-2">
@@ -249,7 +254,7 @@ class FullCalendar extends React.Component {
               className="close"
               data-dismiss="modal"
               type="button"
-              onClick={() => this.setState({ modalAdd: false })}
+              onClick={() => this.setState({ modalAdd: false, errorMessage: '' })}
             >
               <i className="tim-icons icon-simple-remove" />
             </button>
@@ -266,6 +271,7 @@ class FullCalendar extends React.Component {
                     this.setState({ eventTitle: e.target.value })
                   }
                 />
+                <span className="red-text">{this.state.errorMessage}</span>
               </FormGroup>
             </form>
           </div>
