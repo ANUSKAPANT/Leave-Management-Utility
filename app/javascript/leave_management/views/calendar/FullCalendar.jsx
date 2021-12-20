@@ -1,7 +1,7 @@
 import React from "react";
 import { 
   Button, ButtonGroup, Card, CardHeader, CardBody, Container,
-  FormGroup, Form, Input, Modal, Row, Col, Nav,
+  FormGroup, Form, Input, Modal, Row, Col, Nav, Label,
 } from "reactstrap";
 import dayjs from 'dayjs';
 // JavaScript library that creates a callendar with events
@@ -23,7 +23,10 @@ const statusColorMap = {
 class FullCalendar extends React.Component {
   state = {
     events: [],
-    alert: null
+    alert: null,
+    errors: {},
+    errorMessages: [],
+    leaveType: 0
   };
 
   isAdmin = () => this.props.globalState.userData.role === "admin";
@@ -67,6 +70,7 @@ class FullCalendar extends React.Component {
           modalChange: true,
           eventId: event.id,
           eventTitle: event.title,
+          leaveType: event.extendedProps.leave_type,
           eventStatus: event.extendedProps.status,
           userName: event.extendedProps.user.first_name + ' ' + event.extendedProps.user.last_name,
           radios: "bg-info",
@@ -87,6 +91,16 @@ class FullCalendar extends React.Component {
     });
   };
 
+  //expect error to be of format {leave: Array(1)}
+  generateErrorMessage = (errors) => {
+    let errorMessages = []
+    Object.keys(errors).forEach((key) => {
+      errorMessages.push(errors[key][0])
+    })
+
+    return errorMessages
+  }
+
   addNewEvent = () => {
     const postData = {
       leave_request: {
@@ -94,6 +108,7 @@ class FullCalendar extends React.Component {
         start: this.state.startDate,
         end_date: this.state.endDate,
         status: "pending",
+        leave_type: this.state.leaveType
       }
     };
     apiCall.submitEntity(postData, '/leave_requests.json')
@@ -106,16 +121,18 @@ class FullCalendar extends React.Component {
         this.setState({
           events: newEvents,
           modalAdd: false,
-          events: newEvents,
           startDate: undefined,
           endDate: undefined,
           radios: "bg-info",
-          eventTitle: undefined
+          eventTitle: undefined,
+          leave_type: 0
         });
+        this.resetToDefaultState();
       })
       .catch((error) => {
         this.setState({
-          errorMessage: error.response.data.message[0]
+          errors: error.response.data,
+          errorMessages: this.generateErrorMessage(error.response.data)
         })
       });
   };
@@ -126,6 +143,7 @@ class FullCalendar extends React.Component {
     const postData = {
       title: this.state.eventTitle,
       status: this.state.eventStatus,
+      leave_type: this.state.leaveType
     };
     apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
       .then((res) => {
@@ -144,7 +162,8 @@ class FullCalendar extends React.Component {
           radios: "bg-info",
           eventTitle: undefined,
           eventId: undefined,
-          event: undefined
+          event: undefined,
+          leaveType: ''
         });
         NotifyUser(`Successfully updated`, 'bc', 'success', this.props.globalState.notificationRef);
         this.createCalendar(newEvents);
@@ -179,7 +198,10 @@ class FullCalendar extends React.Component {
     this.setState({
       modalChange: false,
       modalAdd: false,
-      errorMessage: ''
+      errors: {},
+      errorMessages: [],
+      leaveType: 0,
+      eventTitle: ''
     })
   }
 
@@ -287,12 +309,31 @@ class FullCalendar extends React.Component {
               )
             }
             
-            <Form 
+            <Form
               className="edit-event--form" 
               type="submit" 
               onSubmit={(e) => { this.addOrUpdate(e) }}
             >
               <FormGroup>
+                <Label for="leaveType">
+                  Leave Type
+                </Label>
+                <select
+                    id="leaveType"
+                    value={this.state.leaveType}
+                    onChange={ e => this.setState({leaveType: e.target.value}) }
+                    className={'form-control'}
+                >
+                  <option value={'sick_leave'}>
+                    Sick Leave
+                  </option>
+                  <option value={'personal'}>
+                    Personal Leave
+                  </option>
+                  <option value={'others'}>
+                    Other
+                  </option>
+                </select>
                 <label className="form-control-label">Reason</label>
                 <Input
                   className="form-control-alternative edit-event--title"
@@ -303,6 +344,7 @@ class FullCalendar extends React.Component {
                     this.setState({ eventTitle: e.target.value })
                   }
                 />
+                { this.state.errorMessages.map(message => <div className='red-text'>{message}</div>)  }
               </FormGroup>
               {this.state.modalChange && this.isAdmin() && (
                 <FormGroup>
