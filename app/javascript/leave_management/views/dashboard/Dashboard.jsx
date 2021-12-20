@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
-  Badge,
-  Table,
-  Card, CardBody, CardHeader, Nav, Row, Col,
+    Button,
+    Badge,
+    Table,
+    Card, CardBody, CardHeader, Nav, Row, Col, Modal, Input,
 } from "reactstrap";
 import ReactTable from "../../components/ReactTable/ReactTable";
 import Jsona from 'jsona';
@@ -12,6 +12,11 @@ import NotifyUser from '../../components/Alert/NotifyUser';
 
 export default function Dashboard(props) {
   const [events, setEvents] = useState([]);
+  const [updateLeaveRequest, setUpdateLeaveRequest] = useState(false)
+  const [leaveTitle, setLeaveTitle] = useState('')
+  const [approved, setApproved] = useState(false)
+  const [rejected, setRejected] = useState(false)
+
   const statusColorMap = {
     pending: "bg-info",
     approved: "bg-success",
@@ -46,10 +51,21 @@ export default function Dashboard(props) {
         NotifyUser(`Successfully ${status}!`, 'bc', `${status === 'approved' ? 'success' : 'danger'}`, props.globalState.notificationRef);
       });
   }
+
+    const onRowClick = (state, rowInfo) => {
+        return {
+            onClick: e => {
+                setUpdateLeaveRequest(true)
+                setApproved(rowInfo.original.status === 'approved')
+                setRejected(rowInfo.original.status === 'rejected')
+                setLeaveTitle(rowInfo.original.title)
+            }
+        }
+    }
   
   return (
     <>
-      <Card className="shadow mb-0">
+        <Card className="shadow mb-0">
         <CardHeader className="border-0 text-white bg-primary pb-6 px-5">
           <Row className="pt-4">
             <Col lg="6">
@@ -161,11 +177,76 @@ export default function Dashboard(props) {
               ]}
               defaultPageSize={5}
               showPaginationBottom
+              getTrProps={onRowClick}
               className="-striped -highlight text-capitalize"
             />
           </div>
         </CardBody>
       </Card>
+
+        <Modal
+            isOpen={updateLeaveRequest}
+            toggle={() => setUpdateLeaveRequest(false)}
+            className="modal-dialog-centered modal-secondary"
+        >
+            <div className="modal-header p-1">
+                <button
+                    aria-hidden
+                    className="close"
+                    data-dismiss="modal"
+                    type="button"
+                    onClick={() => setUpdateLeaveRequest(false)}
+                >
+                    <i className="tim-icons icon-simple-remove" />
+                </button>
+            </div>
+
+            <div className="modal-body">
+                <label className="form-control-label">Reason</label>
+                <Input
+                    className="form-control-alternative edit-event--title"
+                    placeholder="Reason"
+                    type="text"
+                    defaultValue={leaveTitle}
+                    disabled
+                />
+                <br/>
+
+                {!approved && (
+                    <>
+                        <Button
+                            // onClick={() => this.setState({ eventStatus: "approved" })}
+                            // disabled={this.state.eventStatus === "approved"}
+                            color="success"
+                            size="sm"
+                            className="btn-icon btn-link like"
+                        >
+                            <i className="tim-icons icon-check-2 text-white font-weight-bold"/>
+                        </Button>
+                        <label className="form-control-label">
+                            Approve
+                        </label>
+                    </>
+                    )}
+                <br />
+                {  !rejected &&
+                    <>
+                        <Button
+                        // onClick={() => this.setState({ eventStatus: "rejected" })}
+                        // disabled={this.state.eventStatus === "rejected"}
+                        color="danger"
+                        size="sm"
+                        className="btn-icon btn-link like"
+                        >
+                        <i className="tim-icons icon-simple-remove text-white font-weight-bold" />
+                        </Button>
+                        <label className="form-control-label">
+                        Reject
+                        </label>
+                    </>
+                }
+            </div>
+        </Modal>
     </>
   );
 };
