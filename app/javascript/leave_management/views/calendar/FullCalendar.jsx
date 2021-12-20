@@ -335,7 +335,7 @@ class FullCalendar extends React.Component {
               onSubmit={(e) => { this.addOrUpdate(e) }}
             >
               <FormGroup>
-                <Label for="leaveType">
+                <Label for="leaveType" className={'form-control-label'}>
                   Leave Type
                 </Label>
                 <select
