@@ -89,16 +89,17 @@ export default function Dashboard(props) {
                 },
                 {
                   Header: "End Date",
-                  accessor: "end",
+                  accessor: "end_date",
                   style: { whiteSpace: "unset"},
                 },
                 {
                   id: "duration",
                   Header: "Duration",
                   Cell: (row) => {
-                    const {start, end} = row.original;
-                    const numberOfDays = Math.abs(new Date(start) - new Date(end))/86400000;
-                    return numberOfDays;
+                    const {start, end_date} = row.original;
+
+                    // we modified end date to include only till the last day of leave so need to add 1
+                    return (Math.abs(new Date(start) - new Date(end_date))/86400000 + 1);
                   },
                 },
                 {
