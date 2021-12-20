@@ -26,7 +26,7 @@ class FullCalendar extends React.Component {
     alert: null,
     errors: {},
     errorMessages: [],
-    leaveType: 0
+    leaveType: 'sick_leave'
   };
 
   isAdmin = () => this.props.globalState.userData.role === "admin";
@@ -57,17 +57,22 @@ class FullCalendar extends React.Component {
       },
       // Add new event
       select: info => {
+        // end date should be the last day of the leave, better not include the present day
+        let endDate = new Date(info.endStr)
+        endDate.setDate(endDate.getDate() -1)
+        endDate.toLocaleString()
+
         this.setState({
-          modalAdd: true,
+          createLeaveRequest: true,
           startDate: info.startStr,
-          endDate: info.endStr,
+          endDate: endDate,
           radios: "bg-info"
         });
       },
       // Edit calendar event action
       eventClick: ({ event }) => {
         this.setState({
-          modalChange: true,
+          updateLeaveRequest: true,
           eventId: event.id,
           eventTitle: event.title,
           leaveType: event.extendedProps.leave_type,
@@ -95,7 +100,7 @@ class FullCalendar extends React.Component {
   generateErrorMessage = (errors) => {
     let errorMessages = []
     Object.keys(errors).forEach((key) => {
-      errorMessages.push(errors[key][0])
+      errorMessages.push(`${key} ${errors[key][0]}`)
     })
 
     return errorMessages
@@ -120,12 +125,12 @@ class FullCalendar extends React.Component {
         calendar.addEvent({...data, className: statusColorMap[data.status]});
         this.setState({
           events: newEvents,
-          modalAdd: false,
+          createLeaveRequest: false,
           startDate: undefined,
           endDate: undefined,
           radios: "bg-info",
           eventTitle: undefined,
-          leave_type: 0
+          leave_type: 'sick_leave'
         });
         this.resetToDefaultState();
       })
@@ -157,13 +162,13 @@ class FullCalendar extends React.Component {
           return el;
         });
         this.setState({
-          modalChange: false,
+          updateLeaveRequest: false,
           events: newEvents,
           radios: "bg-info",
           eventTitle: undefined,
           eventId: undefined,
           event: undefined,
-          leaveType: ''
+          leaveType: 'sick_leave'
         });
         NotifyUser(`Successfully updated`, 'bc', 'success', this.props.globalState.notificationRef);
         this.createCalendar(newEvents);
@@ -196,17 +201,17 @@ class FullCalendar extends React.Component {
 
   resetToDefaultState = () => {
     this.setState({
-      modalChange: false,
-      modalAdd: false,
+      updateLeaveRequest: false,
+      createLeaveRequest: false,
       errors: {},
       errorMessages: [],
-      leaveType: 0,
+      leaveType: 'sick_leave',
       eventTitle: ''
     })
   }
 
   addOrUpdate = (e) => {
-    if(this.state.modalChange) {
+    if(this.state.updateLeaveRequest) {
       this.updateEvent(e)
     }
     else {
@@ -285,7 +290,7 @@ class FullCalendar extends React.Component {
         
         {/* MODAL to create or update existing leave request */}
         <Modal
-          isOpen={this.state.modalChange || this.state.modalAdd}
+          isOpen={this.state.updateLeaveRequest || this.state.createLeaveRequest}
           toggle={() => this.resetToDefaultState()}
           className="modal-dialog-centered modal-secondary"
         >
@@ -302,7 +307,7 @@ class FullCalendar extends React.Component {
           </div>
           <div className="modal-body">
             {
-              this.state.modalChange && (
+              this.state.updateLeaveRequest && (
                 <label className="font-weight-bold">
                   {this.state.userName}
                 </label>
@@ -346,7 +351,7 @@ class FullCalendar extends React.Component {
                 />
                 { this.state.errorMessages.map(message => <div className='red-text'>{message}</div>)  }
               </FormGroup>
-              {this.state.modalChange && this.isAdmin() && (
+              {this.state.updateLeaveRequest && this.isAdmin() && (
                 <FormGroup>
                   <label className="form-control-label d-block mb-3 text-capitalize">
                     Status - {this.state.eventStatus}
@@ -382,9 +387,9 @@ class FullCalendar extends React.Component {
           </div>
           <div className="modal-footer">
             <Button color="primary" type="submit" onClick={(e) => this.addOrUpdate(e)}>
-              { this.state.modalChange ? 'Update':'Request Leave'}
+              { this.state.updateLeaveRequest ? 'Update':'Request Leave'}
             </Button>
-            {this.state.modalChange && (<Button color="danger" onClick={() => this.setState({ modalChange: false }, () => this.deleteEventAlert())}>
+            {this.state.updateLeaveRequest && (<Button color="danger" onClick={() => this.setState({ updateLeaveRequest: false }, () => this.deleteEventAlert())}>
               Delete
             </Button>)}
           </div>
