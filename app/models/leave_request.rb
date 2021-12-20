@@ -9,6 +9,8 @@ class LeaveRequest < ApplicationRecord
   # validate same user can't create leave for same day with multiple reasons
   validate :prevent_multiple_leave_on_same_day
 
+  scope :upcoming_leaves,  -> { where('start > ?', Date.today) }
+
   private
 
   def prevent_multiple_leave_on_same_day
