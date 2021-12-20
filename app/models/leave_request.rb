@@ -4,6 +4,7 @@ class LeaveRequest < ApplicationRecord
   enum leave_type: { sick_leave: 0, personal: 1, others: 2 }
 
   validates_presence_of :title
+  validates_presence_of :start, :end_date
   validates_presence_of :leave_type, message: "Leave Type can't be blank"
   # validate same user can't create leave for same day with multiple reasons
   validate :prevent_multiple_leave_on_same_day
