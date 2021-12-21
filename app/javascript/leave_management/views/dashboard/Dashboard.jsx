@@ -24,6 +24,7 @@ export default function Dashboard(props) {
     rejected: "bg-warning",
   };
   const isAdmin = () => props.globalState.userData.role === "admin";
+  const isPending = (status) => status === 'pending'
 
   useEffect(() => {
     apiCall.fetchEntities('/leave_requests.json')
@@ -56,7 +57,7 @@ export default function Dashboard(props) {
   }
 
     const onRowClick = (state, rowInfo) => {
-        return {
+         return isAdmin() && {
             onClick: e => {
                 setUpdateLeaveRequest(true)
                 setApproved(rowInfo.original.status === 'approved')
@@ -147,7 +148,7 @@ export default function Dashboard(props) {
                   show: isAdmin(),
                   Cell: (row) => (
                     <div className="actions-right">
-                      { row.original.status === "pending" && (
+                      { isPending(row.original.status) && (
                         <Button
                           onClick={() => {
                             const id = row.original.id;
@@ -160,7 +161,7 @@ export default function Dashboard(props) {
                           <i className="tim-icons icon-check-2 text-white font-weight-bold" />
                         </Button>
                       )}
-                      {row.original.status === "pending" && (
+                      {isPending(row.original.status) && (
                         <Button
                           onClick={() => {
                             const id = row.original.id;
