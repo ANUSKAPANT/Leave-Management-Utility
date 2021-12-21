@@ -16,6 +16,7 @@ export default function Dashboard(props) {
   const [leaveTitle, setLeaveTitle] = useState('')
   const [approved, setApproved] = useState(false)
   const [rejected, setRejected] = useState(false)
+  const [leaveRequestId, setLeaveRequestId] = useState(undefined)
 
   const statusColorMap = {
     pending: "bg-info",
@@ -50,6 +51,8 @@ export default function Dashboard(props) {
         setEvents(newEvents);
         NotifyUser(`Successfully ${status}!`, 'bc', `${status === 'approved' ? 'success' : 'danger'}`, props.globalState.notificationRef);
       });
+
+    setUpdateLeaveRequest(false)
   }
 
     const onRowClick = (state, rowInfo) => {
@@ -58,6 +61,7 @@ export default function Dashboard(props) {
                 setUpdateLeaveRequest(true)
                 setApproved(rowInfo.original.status === 'approved')
                 setRejected(rowInfo.original.status === 'rejected')
+                setLeaveRequestId(rowInfo.original.id)
                 setLeaveTitle(rowInfo.original.title)
             }
         }
@@ -143,7 +147,7 @@ export default function Dashboard(props) {
                   show: isAdmin(),
                   Cell: (row) => (
                     <div className="actions-right">
-                      {row.original.status !== "approved" && (
+                      { row.original.status === "pending" && (
                         <Button
                           onClick={() => {
                             const id = row.original.id;
@@ -156,7 +160,7 @@ export default function Dashboard(props) {
                           <i className="tim-icons icon-check-2 text-white font-weight-bold" />
                         </Button>
                       )}
-                      {row.original.status !== "rejected" && (
+                      {row.original.status === "pending" && (
                         <Button
                           onClick={() => {
                             const id = row.original.id;
@@ -215,8 +219,7 @@ export default function Dashboard(props) {
                 {!approved && (
                     <>
                         <Button
-                            // onClick={() => this.setState({ eventStatus: "approved" })}
-                            // disabled={this.state.eventStatus === "approved"}
+                            onClick={() => handleActions('approved', leaveRequestId)}
                             color="success"
                             size="sm"
                             className="btn-icon btn-link like"
@@ -232,8 +235,7 @@ export default function Dashboard(props) {
                 {  !rejected &&
                     <>
                         <Button
-                        // onClick={() => this.setState({ eventStatus: "rejected" })}
-                        // disabled={this.state.eventStatus === "rejected"}
+                        onClick={() => handleActions('rejected', leaveRequestId)}
                         color="danger"
                         size="sm"
                         className="btn-icon btn-link like"
