@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
-  Badge,
-  Table,
-  Card, CardBody, CardHeader, Nav, Row, Col,
+    Button,
+    Badge,
+    Table,
+    Card, CardBody, CardHeader, Nav, Row, Col, Modal, Input,
 } from "reactstrap";
 import ReactTable from "../../components/ReactTable/ReactTable";
 import Jsona from 'jsona';
@@ -12,12 +12,19 @@ import NotifyUser from '../../components/Alert/NotifyUser';
 
 export default function Dashboard(props) {
   const [events, setEvents] = useState([]);
+  const [updateLeaveRequest, setUpdateLeaveRequest] = useState(false)
+  const [leaveTitle, setLeaveTitle] = useState('')
+  const [approved, setApproved] = useState(false)
+  const [rejected, setRejected] = useState(false)
+  const [leaveRequestId, setLeaveRequestId] = useState(undefined)
+
   const statusColorMap = {
     pending: "bg-info",
     approved: "bg-success",
     rejected: "bg-warning",
   };
   const isAdmin = () => props.globalState.userData.role === "admin";
+  const isPending = (status) => status === 'pending'
 
   useEffect(() => {
     apiCall.fetchEntities('/leave_requests.json')
@@ -31,7 +38,9 @@ export default function Dashboard(props) {
   const handleActions = (status, id) => {
     const postData = {
       status,
+      approver_id: props.globalState.userData.id,
     };
+
     apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
       .then((res) => {
         const dataFormatter = new Jsona();
@@ -45,11 +54,28 @@ export default function Dashboard(props) {
         setEvents(newEvents);
         NotifyUser(`Successfully ${status}!`, 'bc', `${status === 'approved' ? 'success' : 'danger'}`, props.globalState.notificationRef);
       });
+
+    setUpdateLeaveRequest(false)
   }
+
+    const onRowClick = (state, rowInfo) => {
+         return isAdmin() && {
+            onClick: e => {
+                // no need to go through all this, if admin is using the right actions button to handle reject or approve
+                if (e.target.closest('.actions-right') === null) {
+                    setUpdateLeaveRequest(true)
+                    setApproved(rowInfo.original.status === 'approved')
+                    setRejected(rowInfo.original.status === 'rejected')
+                    setLeaveRequestId(rowInfo.original.id)
+                    setLeaveTitle(rowInfo.original.title)
+                }
+            }
+        }
+    }
   
   return (
     <>
-      <Card className="shadow mb-0">
+        <Card className="shadow mb-0">
         <CardHeader className="border-0 text-white bg-primary pb-6 px-5">
           <Row className="pt-4">
             <Col lg="6">
@@ -89,16 +115,17 @@ export default function Dashboard(props) {
                 },
                 {
                   Header: "End Date",
-                  accessor: "end",
+                  accessor: "end_date",
                   style: { whiteSpace: "unset"},
                 },
                 {
                   id: "duration",
                   Header: "Duration",
                   Cell: (row) => {
-                    const {start, end} = row.original;
-                    const numberOfDays = Math.abs(new Date(start) - new Date(end))/86400000;
-                    return numberOfDays;
+                    const {start, end_date} = row.original;
+
+                    // we modified end date to include only till the last day of leave so need to add 1
+                    return (Math.abs(new Date(start) - new Date(end_date))/86400000 + 1);
                   },
                 },
                 {
@@ -126,7 +153,7 @@ export default function Dashboard(props) {
                   show: isAdmin(),
                   Cell: (row) => (
                     <div className="actions-right">
-                      {row.original.status !== "approved" && (
+                      { isPending(row.original.status) && (
                         <Button
                           onClick={() => {
                             const id = row.original.id;
@@ -139,7 +166,7 @@ export default function Dashboard(props) {
                           <i className="tim-icons icon-check-2 text-white font-weight-bold" />
                         </Button>
                       )}
-                      {row.original.status !== "rejected" && (
+                      {isPending(row.original.status) && (
                         <Button
                           onClick={() => {
                             const id = row.original.id;
@@ -160,11 +187,74 @@ export default function Dashboard(props) {
               ]}
               defaultPageSize={5}
               showPaginationBottom
+              getTrProps={onRowClick}
               className="-striped -highlight text-capitalize"
             />
           </div>
         </CardBody>
       </Card>
+
+        <Modal
+            isOpen={updateLeaveRequest}
+            toggle={() => setUpdateLeaveRequest(false)}
+            className="modal-dialog-centered modal-secondary"
+        >
+            <div className="modal-header p-1">
+                <button
+                    aria-hidden
+                    className="close"
+                    data-dismiss="modal"
+                    type="button"
+                    onClick={() => setUpdateLeaveRequest(false)}
+                >
+                    <i className="tim-icons icon-simple-remove" />
+                </button>
+            </div>
+
+            <div className="modal-body">
+                <label className="form-control-label">Reason</label>
+                <Input
+                    className="form-control-alternative edit-event--title"
+                    placeholder="Reason"
+                    type="text"
+                    defaultValue={leaveTitle}
+                    disabled
+                />
+                <br/>
+
+                {!approved && (
+                    <>
+                        <Button
+                            onClick={() => handleActions('approved', leaveRequestId)}
+                            color="success"
+                            size="sm"
+                            className="btn-icon btn-link like"
+                        >
+                            <i className="tim-icons icon-check-2 text-white font-weight-bold"/>
+                        </Button>
+                        <label className="form-control-label">
+                            Approve
+                        </label>
+                    </>
+                    )}
+                <br />
+                {  !rejected &&
+                    <>
+                        <Button
+                        onClick={() => handleActions('rejected', leaveRequestId)}
+                        color="danger"
+                        size="sm"
+                        className="btn-icon btn-link like"
+                        >
+                        <i className="tim-icons icon-simple-remove text-white font-weight-bold" />
+                        </Button>
+                        <label className="form-control-label">
+                        Reject
+                        </label>
+                    </>
+                }
+            </div>
+        </Modal>
     </>
   );
 };
