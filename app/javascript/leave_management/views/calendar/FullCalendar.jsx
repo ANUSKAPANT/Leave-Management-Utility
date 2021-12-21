@@ -343,6 +343,7 @@ class FullCalendar extends React.Component {
                     value={this.state.leaveType}
                     onChange={ e => this.setState({leaveType: e.target.value}) }
                     className={'form-control'}
+                    disabled={this.isAdmin() && this.state.updateLeaveRequest}
                 >
                   <option value={'sick_leave'}>
                     Sick Leave
@@ -360,6 +361,7 @@ class FullCalendar extends React.Component {
                   placeholder="Reason"
                   type="text"
                   defaultValue={this.state.eventTitle}
+                  disabled={this.isAdmin() && this.state.updateLeaveRequest}
                   onChange={e =>
                     this.setState({ eventTitle: e.target.value })
                   }
