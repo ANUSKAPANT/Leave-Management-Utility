@@ -38,7 +38,9 @@ export default function Dashboard(props) {
   const handleActions = (status, id) => {
     const postData = {
       status,
+      approver_id: props.globalState.userData.id,
     };
+
     apiCall.submitEntity( postData, `/leave_requests/${id}.json`, "patch")
       .then((res) => {
         const dataFormatter = new Jsona();
@@ -59,11 +61,14 @@ export default function Dashboard(props) {
     const onRowClick = (state, rowInfo) => {
          return isAdmin() && {
             onClick: e => {
-                setUpdateLeaveRequest(true)
-                setApproved(rowInfo.original.status === 'approved')
-                setRejected(rowInfo.original.status === 'rejected')
-                setLeaveRequestId(rowInfo.original.id)
-                setLeaveTitle(rowInfo.original.title)
+                // no need to go through all this, if admin is using the right actions button to handle reject or approve
+                if (e.target.closest('.actions-right') === null) {
+                    setUpdateLeaveRequest(true)
+                    setApproved(rowInfo.original.status === 'approved')
+                    setRejected(rowInfo.original.status === 'rejected')
+                    setLeaveRequestId(rowInfo.original.id)
+                    setLeaveTitle(rowInfo.original.title)
+                }
             }
         }
     }
