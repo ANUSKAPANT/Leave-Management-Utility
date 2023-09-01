@@ -1,0 +1,18 @@
+databases:
+  - name: leave-management-utility
+    databaseName: leave-management-utility
+    user: leave-management-utility
+
+services:
+  - type: web
+    name: leave-management-utility
+    env: ruby
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: leave_management_utility
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
