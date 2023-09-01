@@ -1,11 +1,11 @@
 databases:
-  - name: leave-management-utility
-    databaseName: leave-management-utility
-    user: leave-management-utility
+  - name: leave_management_utility
+    databaseName: leave_management_utility
+    user: leave_management_utility
 
 services:
   - type: web
-    name: leave-management-utility
+    name: leave_management_utility
     env: ruby
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
