@@ -24,6 +24,11 @@ export default function Login() {
   const handleSubmit = (event) => {
     const csrf = document.querySelector("meta[name='csrf-token']").getAttribute('content');
     event.preventDefault();
+    console.log(event.target.innerText);
+    const userVal = {
+      email: "test@example.com",
+      password: "test123"
+    };
 
     axios({
       method: 'post',
@@ -33,7 +38,7 @@ export default function Login() {
         'X-CSRF-Token': csrf,
       },
       data: {
-        user: { email, password },
+        user: event.target.innerText == "Guest Login" ? userVal : { email, password },
       },
     }).then((response) => {
       if (response.status === 201) {
@@ -87,7 +92,7 @@ export default function Login() {
                         <i className="tim-icons icon-email-85" />
                       </InputGroupText>
                     </InputGroupAddon>
-                    <Input placeholder="Email" type="text" name="email" onChange={(e) => setEmail(e.target.value)} defaultValue="test@example.com" />
+                    <Input placeholder="Email" type="text" name="email" onChange={(e) => setEmail(e.target.value)}/>
                   </InputGroup>
                     <InputGroup>
                       <InputGroupAddon addonType="prepend">
@@ -95,7 +100,7 @@ export default function Login() {
                           <i className="tim-icons icon-lock-circle" />
                         </InputGroupText>
                       </InputGroupAddon>
-                      <Input placeholder="Password" type="password" name="password" onChange={(e) => setPassword(e.target.value)} defaultValue="test123" />
+                      <Input placeholder="Password" type="password" name="password" onChange={(e) => setPassword(e.target.value)}/>
                     </InputGroup>
                   </FormGroup>
                 </Form>
@@ -103,6 +108,9 @@ export default function Login() {
               <CardFooter>
               <Button block className="mb-3" color="primary" onClick={handleSubmit} size="lg">
                 Get Started
+              </Button>
+              <Button block className="mb-3" color="primary" onClick={handleSubmit} size="lg">
+                Guest Login
               </Button>
               </CardFooter>
             </Card>
