@@ -87,7 +87,7 @@ export default function Login() {
                         <i className="tim-icons icon-email-85" />
                       </InputGroupText>
                     </InputGroupAddon>
-                    <Input placeholder="Email" type="text" name="email" onChange={(e) => setEmail(e.target.value)} />
+                    <Input placeholder="Email" type="text" name="email" onChange={(e) => setEmail(e.target.value)} defaultValue="test@example.com" />
                   </InputGroup>
                     <InputGroup>
                       <InputGroupAddon addonType="prepend">
@@ -95,7 +95,7 @@ export default function Login() {
                           <i className="tim-icons icon-lock-circle" />
                         </InputGroupText>
                       </InputGroupAddon>
-                      <Input placeholder="Password" type="password" name="password" onChange={(e) => setPassword(e.target.value)} />
+                      <Input placeholder="Password" type="password" name="password" onChange={(e) => setPassword(e.target.value)} defaultValue="test123" />
                     </InputGroup>
                   </FormGroup>
                 </Form>
